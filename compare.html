@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Foods - NutriVision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #10b981 100%);
+        }
+        .dark-gradient {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #0f172a 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark-glass {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .comparison-card {
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .comparison-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .better {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .worse {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .neutral {
+            color: #9ca3af;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .nav-glass {
+            background: rgba(17, 24, 39, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.5); }
+        }
+        .glow-animation {
+            animation: glow 2s ease-in-out infinite;
+        }
+        .food-icon {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+        .vs-icon {
+            background: linear-gradient(135deg, #374151, #6b7280);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .allergen-warning {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .health-benefit {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .dietary-badge {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="nav-glass">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-leaf text-3xl text-emerald-400 mr-3 glow-animation"></i>
+                    <span class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">NutriVision</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="/" class="text-gray-300 hover:text-emerald-400 transition">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="/compare" class="text-purple-400 font-semibold">
+                        <i class="fas fa-balance-scale mr-2"></i>Compare
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="gradient-bg py-16 relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-20"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-2xl">
+                    <i class="fas fa-balance-scale mr-3"></i>Food Comparison
+                </h1>
+                <p class="text-xl opacity-90 text-gray-100">Compare nutritional values, allergens, and health benefits</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-12">
+        <div class="container mx-auto px-6">
+            <div class="max-w-6xl mx-auto">
+                
+                <!-- Food Selection -->
+                <div class="dark-glass rounded-xl shadow-2xl p-8 mb-8">
+                    <h2 class="text-2xl font-bold mb-6 text-white">
+                        <i class="fas fa-utensils mr-2 text-emerald-400"></i>Select Foods to Compare
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <!-- Food 1 Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">First Food</label>
+                            <select id="food1Select" class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Select a food...</option>
+                                {% for food in all_foods %}
+                                <option value="{{ food }}">{{ food.replace('_', ' ').title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Food 2 Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Second Food</label>
+                            <select id="food2Select" class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Select a food...</option>
+                                {% for food in all_foods %}
+                                <option value="{{ food }}">{{ food.replace('_', ' ').title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Serving Size -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Serving Size (g)</label>
+                            <input type="number" id="servingSize" value="100" min="1" max="1000" 
+                                   class="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button id="compareBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed shadow-lg">
+                            <i class="fas fa-balance-scale mr-2"></i>Compare Foods
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scan History -->
+                {% if scan_history %}
+                <div class="dark-glass rounded-xl shadow-2xl p-8 mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-white">
+                            <i class="fas fa-history mr-2 text-cyan-400"></i>Recent Scans
+                        </h2>
+                        <a href="/clear_history" class="text-red-400 hover:text-red-300 transition">
+                            <i class="fas fa-trash mr-1"></i>Clear History
+                        </a>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for scan in scan_history %}
+                        <div class="comparison-card p-4 rounded-lg cursor-pointer hover:bg-gray-700 transition"
+                             onclick="selectFromHistory('{{ scan.food }}')">
+                            <div class="flex items-center space-x-3">
+                                <img src="{{ url_for('static', filename=scan.image_path) }}" 
+                                     alt="{{ scan.food }}" 
+                                     class="w-12 h-12 object-cover rounded-lg shadow-lg">
+                                <div>
+                                    <h3 class="font-semibold text-white">{{ scan.food.replace('_', ' ').title() }}</h3>
+                                    <p class="text-sm text-gray-400">{{ scan.timestamp }}</p>
+                                    <p class="text-xs text-purple-400">{{ "%.1f"|format(scan.confidence * 100) }}% confident</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Comparison Results -->
+                <div id="comparisonResults" class="hidden">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+
+                <!-- Quick Tips -->
+                <div class="dark-glass rounded-xl p-8">
+                    <h2 class="text-2xl font-bold mb-4 text-white">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>Quick Tips
+                    </h2>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="comparison-card p-6 rounded-lg">
+                            <h3 class="font-semibold text-cyan-400 mb-2">Understanding the Comparison</h3>
+                            <ul class="text-sm text-gray-300 space-y-1">
+                                <li><i class="fas fa-check-circle mr-2 text-emerald-400"></i>Green values indicate better nutritional content</li>
+                                <li><i class="fas fa-times-circle mr-2 text-red-400"></i>Red values indicate higher/concerning levels</li>
+                                <li><i class="fas fa-info-circle mr-2 text-gray-400"></i>Gray values are neutral or similar</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-card p-6 rounded-lg">
+                            <h3 class="font-semibold text-purple-400 mb-2">Making Better Choices</h3>
+                            <ul class="text-sm text-gray-300 space-y-1">
+                                <li><i class="fas fa-arrow-up mr-2 text-emerald-400"></i>Look for higher protein and fiber</li>
+                                <li><i class="fas fa-arrow-down mr-2 text-red-400"></i>Prefer lower sugar and sodium</li>
+                                <li><i class="fas fa-balance-scale mr-2 text-purple-400"></i>Consider overall calorie content</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-card p-6 rounded-lg">
+                            <h3 class="font-semibold text-red-400 mb-2">Check Allergens</h3>
+                            <ul class="text-sm text-gray-300 space-y-1">
+                                <li><i class="fas fa-exclamation-triangle mr-2 text-red-400"></i>Always review allergen information</li>
+                                <li><i class="fas fa-shield-virus mr-2 text-yellow-400"></i>Consider cross-contamination risks</li>
+                                <li><i class="fas fa-heart mr-2 text-emerald-400"></i>Focus on health benefits</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const food1Select = document.getElementById('food1Select');
+        const food2Select = document.getElementById('food2Select');
+        const servingSize = document.getElementById('servingSize');
+        const compareBtn = document.getElementById('compareBtn');
+        const comparisonResults = document.getElementById('comparisonResults');
+
+        function selectFromHistory(foodName) {
+            if (!food1Select.value) {
+                food1Select.value = foodName;
+            } else if (!food2Select.value) {
+                food2Select.value = foodName;
+            } else {
+                // If both are selected, replace the first one
+                food1Select.value = foodName;
+            }
+            updateCompareButton();
+        }
+
+        function updateCompareButton() {
+            const canCompare = food1Select.value && food2Select.value && food1Select.value !== food2Select.value;
+            compareBtn.disabled = !canCompare;
+        }
+
+        function formatNutrientComparison(value1, value2, nutrient) {
+            const diff = value1 - value2;
+            let className = 'neutral';
+            let indicator = '';
+
+            // Define which nutrients are better when higher/lower
+            const higherIsBetter = ['protein', 'fiber'];
+            const lowerIsBetter = ['calories', 'sugar', 'sodium', 'fat'];
+
+            if (Math.abs(diff) > 0.1) {
+                if (higherIsBetter.includes(nutrient)) {
+                    className = diff > 0 ? 'better' : 'worse';
+                    indicator = diff > 0 ? '↑' : '↓';
+                } else if (lowerIsBetter.includes(nutrient)) {
+                    className = diff < 0 ? 'better' : 'worse';
+                    indicator = diff < 0 ? '↓' : '↑';
+                }
+            }
+
+            return { className, indicator, diff };
+        }
+
+        function createComparisonHTML(data) {
+            const food1 = data.food1;
+            const food2 = data.food2;
+            const differences = data.differences;
+
+            const nutrients = [
+                { key: 'calories', name: 'Calories', unit: '', format: (v) => Math.round(v) },
+                { key: 'protein', name: 'Protein', unit: 'g', format: (v) => v.toFixed(1) },
+                { key: 'carbs', name: 'Carbohydrates', unit: 'g', format: (v) => v.toFixed(1) },
+                { key: 'fat', name: 'Fat', unit: 'g', format: (v) => v.toFixed(1) },
+                { key: 'fiber', name: 'Fiber', unit: 'g', format: (v) => v.toFixed(1) },
+                { key: 'sugar', name: 'Sugar', unit: 'g', format: (v) => v.toFixed(1) },
+                { key: 'sodium', name: 'Sodium', unit: 'mg', format: (v) => Math.round(v) }
+            ];
+
+            let html = `
+                <div class="dark-glass rounded-xl shadow-2xl overflow-hidden">
+                    <div class="gradient-bg p-6 relative">
+                        <div class="absolute inset-0 bg-black opacity-20"></div>
+                        <h2 class="text-3xl font-bold text-center text-white relative z-10">
+                            <i class="fas fa-balance-scale mr-3"></i>Detailed Comparison Results
+                        </h2>
+                        <p class="text-center text-gray-100 mt-2 relative z-10">Serving size: ${food1.serving_size}g</p>
+                    </div>
+                    
+                    <div class="p-8">
+                        <!-- Food Headers -->
+                        <div class="grid grid-cols-3 gap-4 mb-8">
+                            <div class="text-center">
+                                <div class="food-icon rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-utensils text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-purple-400">${food1.name}</h3>
+                                <p class="text-sm text-gray-400 mt-1">${food1.origin || 'Origin unknown'}</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="vs-icon rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-equals text-gray-300"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-gray-400">VS</h4>
+                            </div>
+                            <div class="text-center">
+                                <div class="food-icon rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-utensils text-2xl text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-cyan-400">${food2.name}</h3>
+                                <p class="text-sm text-gray-400 mt-1">${food2.origin || 'Origin unknown'}</p>
+                            </div>
+                        </div>
+
+                        <!-- Nutritional Comparison -->
+                        <div class="space-y-4 mb-8">
+            `;
+
+            nutrients.forEach(nutrient => {
+                const value1 = food1[nutrient.key];
+                const value2 = food2[nutrient.key];
+                const comparison = formatNutrientComparison(value1, value2, nutrient.key);
+
+                html += `
+                    <div class="comparison-card rounded-lg p-4">
+                        <div class="grid grid-cols-3 gap-4 items-center">
+                            <div class="text-right">
+                                <span class="text-lg font-semibold ${comparison.diff > 0 ? comparison.className : 'text-white'}">${nutrient.format(value1)}${nutrient.unit}</span>
+                                ${comparison.diff > 0 ? `<span class="ml-2">${comparison.indicator}</span>` : ''}
+                            </div>
+                            <div class="text-center">
+                                <span class="font-medium text-gray-300">${nutrient.name}</span>
+                                ${Math.abs(comparison.diff) > 0.1 ? `<div class="text-sm text-gray-500 mt-1">Δ ${comparison.diff > 0 ? '+' : ''}${nutrient.format(comparison.diff)}${nutrient.unit}</div>` : ''}
+                            </div>
+                            <div class="text-left">
+                                <span class="text-lg font-semibold ${comparison.diff < 0 ? comparison.className : 'text-white'}">${nutrient.format(value2)}${nutrient.unit}</span>
+                                ${comparison.diff < 0 ? `<span class="ml-2">${comparison.indicator}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add allergen comparison if available
+            let allergenHtml = '';
+            if (food1.allergens || food2.allergens) {
+                allergenHtml = `
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="allergen-warning rounded-lg p-6">
+                            <h4 class="font-semibold text-red-400 mb-3">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>${food1.name} - Allergens
+                            </h4>
+                            ${food1.allergens ? food1.allergens.map(allergen => 
+                                `<div class="flex items-center space-x-2 mb-1">
+                                    <i class="fas fa-shield-virus text-red-400 text-sm"></i>
+                                    <span class="text-sm text-gray-300">${allergen}</span>
+                                </div>`
+                            ).join('') : '<p class="text-sm text-gray-400">No allergen data available</p>'}
+                        </div>
+                        <div class="allergen-warning rounded-lg p-6">
+                            <h4 class="font-semibold text-red-400 mb-3">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>${food2.name} - Allergens
+                            </h4>
+                            ${food2.allergens ? food2.allergens.map(allergen => 
+                                `<div class="flex items-center space-x-2 mb-1">
+                                    <i class="fas fa-shield-virus text-red-400 text-sm"></i>
+                                    <span class="text-sm text-gray-300">${allergen}</span>
+                                </div>`
+                            ).join('') : '<p class="text-sm text-gray-400">No allergen data available</p>'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Add health benefits comparison if available
+            let healthHtml = '';
+            if (food1.health_benefits || food2.health_benefits) {
+                healthHtml = `
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="health-benefit rounded-lg p-6">
+                            <h4 class="font-semibold text-emerald-400 mb-3">
+                                <i class="fas fa-heart mr-2"></i>${food1.name} - Health Benefits
+                            </h4>
+                            ${food1.health_benefits ? food1.health_benefits.slice(0, 3).map(benefit => 
+                                `<div class="flex items-start space-x-2 mb-1">
+                                    <i class="fas fa-check-circle text-emerald-400 text-sm mt-1"></i>
+                                    <span class="text-sm text-gray-300">${benefit}</span>
+                                </div>`
+                            ).join('') : '<p class="text-sm text-gray-400">No health benefit data available</p>'}
+                        </div>
+                        <div class="health-benefit rounded-lg p-6">
+                            <h4 class="font-semibold text-emerald-400 mb-3">
+                                <i class="fas fa-heart mr-2"></i>${food2.name} - Health Benefits
+                            </h4>
+                            ${food2.health_benefits ? food2.health_benefits.slice(0, 3).map(benefit => 
+                                `<div class="flex items-start space-x-2 mb-1">
+                                    <i class="fas fa-check-circle text-emerald-400 text-sm mt-1"></i>
+                                    <span class="text-sm text-gray-300">${benefit}</span>
+                                </div>`
+                            ).join('') : '<p class="text-sm text-gray-400">No health benefit data available</p>'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                        </div>
+
+                        <!-- Allergen Comparison -->
+                        ${allergenHtml}
+
+                        <!-- Health Benefits Comparison -->
+                        ${healthHtml}
+
+                        <!-- Food Descriptions -->
+                        <div class="grid md:grid-cols-2 gap-6 mt-8">
+                            <div class="bg-purple-900 bg-opacity-30 rounded-lg p-6 border border-purple-500 border-opacity-20">
+                                <h4 class="font-semibold text-purple-400 mb-2">${food1.name}</h4>
+                                <p class="text-gray-300 text-sm mb-3">${food1.description}</p>
+                                ${food1.dietary_info ? `
+                                    <div class="flex flex-wrap gap-1">
+                                        ${food1.dietary_info.slice(0, 3).map(info => 
+                                            `<span class="dietary-badge px-2 py-1 rounded-full text-xs text-purple-300">${info}</span>`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="bg-cyan-900 bg-opacity-30 rounded-lg p-6 border border-cyan-500 border-opacity-20">
+                                <h4 class="font-semibold text-cyan-400 mb-2">${food2.name}</h4>
+                                <p class="text-gray-300 text-sm mb-3">${food2.description}</p>
+                                ${food2.dietary_info ? `
+                                    <div class="flex flex-wrap gap-1">
+                                        ${food2.dietary_info.slice(0, 3).map(info => 
+                                            `<span class="dietary-badge px-2 py-1 rounded-full text-xs text-cyan-300">${info}</span>`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-center space-x-4 mt-8">
+                            <button onclick="window.print()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition shadow-lg">
+                                <i class="fas fa-print mr-2"></i>Print Comparison
+                            </button>
+                            <a href="/" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-lg">
+                                <i class="fas fa-camera mr-2"></i>Analyze New Food
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        compareBtn.addEventListener('click', function() {
+            const food1 = food1Select.value;
+            const food2 = food2Select.value;
+            const serving = parseInt(servingSize.value) || 100;
+
+            if (!food1 || !food2 || food1 === food2) {
+                alert('Please select two different foods to compare');
+                return;
+            }
+
+            // Show loading state
+            compareBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Comparing...';
+            compareBtn.disabled = true;
+
+            fetch('/compare_foods', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    food1: food1,
+                    food2: food2,
+                    serving_size: serving
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    comparisonResults.innerHTML = createComparisonHTML(data);
+                    comparisonResults.classList.remove('hidden');
+                    comparisonResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while comparing foods');
+            })
+            .finally(() => {
+                compareBtn.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Compare Foods';
+                updateCompareButton();
+            });
+        });
+
+        // Event listeners
+        food1Select.addEventListener('change', updateCompareButton);
+        food2Select.addEventListener('change', updateCompareButton);
+
+        // Initialize
+        updateCompareButton();
+    </script>
+</body>
+</html>
