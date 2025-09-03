@@ -22,20 +22,7 @@ Keeps track of recent scans for quick re-analysis and comparison.
 
 
 
-PROJECT STRUCTURE
-NutriVision/
-│── app.py                  # Flask application entry point
-│── classify_food.py        # YOLOv8-based food classifier
-│── nutrition_database.py   # Nutrition database with detailed food info
-│── templates/
-│   ├── index.html          # Landing page & upload interface
-│   ├── results.html        # Food analysis results
-│   ├── compare.html        # Food comparison page
-│── static/
-│   ├── uploads/            # Uploaded food images
-│   └── css/js/assets       # Static assets
-│── models/
-│   └── best.pt             # Trained YOLOv8 classification model (not included)
+
 
 
 
