@@ -44,25 +44,7 @@ Supported Foods
 
 The model and nutrition database currently support:
 
-Sushi
-
-Bibimbap
-
-Apple Pie
-
-Tiramisu
-
-Cannoli
-
-Edamame
-
-Falafel
-
-French Toast
-
-Ice Cream
-
-Ramen
+Sushi , Bibimbap , Apple Pie , Tiramisu , Cannoli , Edamame , Falafel , French Toast , Ice Cream , Ramen
 
 (Extendable via nutrition_database.py and retraining the model.)
 
